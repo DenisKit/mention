@@ -1,0 +1,27 @@
+{
+  "name": "@lampoint/mention",
+  "version": "0.0.1",
+  "description": "Angular directive for mentioning users",
+  "author": "Denis Kitanovski",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DenisKit/mention"
+  },
+  "homepage": "https://github.com/DenisKit/mention",
+  "keywords": [
+    "mention",
+    "angular",
+    "directive"
+  ],
+  "peerDependencies": {
+    "@angular/common": "^11.2.14",
+    "@angular/core": "^11.2.14"
+  },
+  "dependencies": {
+    "tslib": "^2.0.0"
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  }
+}

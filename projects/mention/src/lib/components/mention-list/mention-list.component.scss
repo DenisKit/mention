@@ -1,0 +1,28 @@
+.mention-list {
+    width: 220px;
+    max-height: 220px;
+    z-index: 1000;
+    background-color: white;
+    border: 1px solid grey;
+    overflow-y: auto;
+
+    .item {
+        overflow-x: hidden;
+        text-overflow: ellipsis;
+        cursor: pointer;
+    }
+}
+
+.autocomplete {
+    background-color: transparent;
+}
+
+.selected {
+    background-color: dodgerblue;
+}
+
+.item-name {
+    padding: 2px 3px; 
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+}
