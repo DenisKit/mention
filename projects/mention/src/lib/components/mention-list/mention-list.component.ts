@@ -1,4 +1,4 @@
-import { AfterViewChecked, Component, ElementRef, EventEmitter, Input, Output, TemplateRef } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, Output, Renderer2, TemplateRef } from '@angular/core';
 import { Config } from '../../interfaces/config';
 import { Item } from '../../interfaces/item';
 import { Position } from '../../interfaces/position';
@@ -33,38 +33,38 @@ export class MentionListComponent implements AfterViewChecked {
   public currentIndex = 0;
   public isMentionListVisible = false;
   public position = new Position();
-  constructor(private element: ElementRef) { }
+  constructor(private element: ElementRef, private cdRef: ChangeDetectorRef, private renderer: Renderer2) { }
 
   ngAfterViewChecked() {
     this.setPosition();
     this.setFocusItemVisible();
-    
   }
 
-  setFocusItemVisible () {
+  setFocusItemVisible() {
     const element = document.getElementById('selected');
     if (!element) return false;
     if (1 !== element.nodeType) return false;
-  
+
     const html = this.element.nativeElement;
     const rect = element.getBoundingClientRect();
-    const isVisible = !!rect && rect.top - (rect.height * 2) >= 0 
-    && rect.top <= html.clientHeight;
+    const isVisible = !!rect && rect.top - (rect.height * 2) >= 0
+      && rect.top <= html.clientHeight;
 
     if (!isVisible) {
-      element?.scrollIntoView({block: 'nearest'}); 
+      element?.scrollIntoView({ block: 'nearest' });
     }
-    
+
   }
 
   setPosition() {
-    this.element.nativeElement.style.position = 'absolute';
-    this.element.nativeElement.style.left = `${this.position.left ? this.position.left : 0}px`;
+    this.renderer.setStyle(this.element.nativeElement, 'position', 'absolute');
+    this.renderer.setStyle(this.element.nativeElement, 'left', `${this.position.left ? this.position.left : 0}px`);
     if (this.position.direction === Direction.Top) {
-      this.element.nativeElement.style.top = `${this.position.top - this.element.nativeElement.offsetHeight}px`;
+      this.renderer.setStyle(this.element.nativeElement, 'top',
+        `${this.position.top - this.element.nativeElement.offsetHeight}px`);
     } else {
-      this.element.nativeElement.style.top =
-        `${this.position.top ? this.position.top + this.position.height : 0}px`;
+      this.renderer.setStyle(this.element.nativeElement, 'top',
+        `${this.position.top ? this.position.top + this.position.height : 0}px`);
     }
   }
 
@@ -74,6 +74,7 @@ export class MentionListComponent implements AfterViewChecked {
 
   setFilteredItems(filteredItems: Item[]) {
     this.filteredItems = [...filteredItems];
+    this.cdRef.detectChanges();
   }
 
   pressedArrowUp() {
