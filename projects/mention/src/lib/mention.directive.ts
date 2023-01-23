@@ -103,7 +103,7 @@ export class MentionDirective implements OnChanges {
     this.extendSelection(term.length);
 
     this._mentionService.pasteHtmlAtCaret(
-      `<span contenteditable="false" class="mention" id="${item.id}" 
+      `<span contenteditable="false" id="${item.id}" class="mention" 
       style="color:blue">${this.config.trigger}${item.name}</span>&nbsp;`);
     this.itemSelected.emit({ id: item.id, name: item.name });
   }
@@ -124,6 +124,7 @@ export class MentionDirective implements OnChanges {
     if (e.key === KeyPressed.Enter && this.mentionListComponent?.isMentionListVisible) {
       this.createMention(this.mentionListComponent.filteredItems[this.mentionListComponent.currentIndex]);
       this.mentionListComponent?.setFilteredItems(this.filteredItems);
+      this.mentionListComponent?.setCurrentIndex(0);
       return false;
     }
 
@@ -154,7 +155,7 @@ export class MentionDirective implements OnChanges {
     this.sel?.isCollapsed ? this.caretPosition = this.sel?.anchorOffset : this.setMentionListVisibility(false);
 
     this.navigateInAutocomplete(e);
-    this.filterItemsByTerm();
+    this.filterItemsByTerm(e);
   }
 
   navigateInAutocomplete(e: KeyboardEvent) {
@@ -165,7 +166,7 @@ export class MentionDirective implements OnChanges {
     }
   }
 
-  filterItemsByTerm() {
+  filterItemsByTerm(e: KeyboardEvent) {
     const term = this.getTerm();
     if (term[0] === this.config.trigger) {
       this.filteredItems = this.filteredItems.filter((item: Item) => {
@@ -173,6 +174,10 @@ export class MentionDirective implements OnChanges {
       });
       this.mentionListComponent?.setFilteredItems(this.filteredItems);
       this.setMentionListVisibility(this.filteredItems.length !== 0);
+      if (e.key !== KeyPressed.ArrowDown && e.key !== KeyPressed.ArrowUp &&
+        e.key !== KeyPressed.ArrowLeft && e.key !== KeyPressed.ArrowRight) {
+        this.mentionListComponent?.setCurrentIndex(0);
+      }
     } else {
       this.setMentionListVisibility(false);
     }
