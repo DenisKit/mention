@@ -3,6 +3,8 @@
 Angular directive for mentioning users. It works with contenteditable elements. This is an open source project from 
 [Lampoint](https://lampoint.com/).
 
+[DEMO](https://lampoint.com/mention)
+
 ## Installation
 ```
 npm install @lampoint/mention
@@ -39,7 +41,8 @@ import { MentionModule } from '@lampoint/mention';
 ```html
 <div contenteditable="true" [mention]="mentions" 
 [mentionConfig]="{trigger: '#', direction: 'top'}"
-(itemSelected)="itemSelected($event)"></div>
+(selectedMention)="selectedMention($event)"
+(searchTerm)="searchTerm($event)"></div>
 ```
 
 ## Custom item template example
@@ -60,7 +63,8 @@ import { MentionModule } from '@lampoint/mention';
 ## Output events
 | Output | Description|
 | :---:   | :---: |
-| @Output() itemSelected EventEmitter | Get selected item { id: string, name: string } |
+| @Output() selectedMention EventEmitter | Get selected mention { id: string, name: string } |
+| @Output() searchTerm EventEmitter | Get term for async search { term: string } |
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)

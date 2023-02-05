@@ -1,4 +1,4 @@
-import { ComponentFactoryResolver, Directive, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges, TemplateRef, ViewChild, ViewContainerRef } from '@angular/core';
+import { ComponentFactoryResolver, Directive, DoCheck, EventEmitter, HostListener, Input, IterableDiffers, OnChanges, Output, SimpleChanges, TemplateRef, ViewChild, ViewContainerRef } from '@angular/core';
 import { MentionService } from './mention.service';
 import { MentionListComponent } from './components/mention-list/mention-list.component';
 import { SelectionModify } from './interfaces/selection-modify';
@@ -10,7 +10,7 @@ import { Direction } from './interfaces/direction';
 @Directive({
   selector: '[mention]'
 })
-export class MentionDirective implements OnChanges {
+export class MentionDirective implements OnChanges, DoCheck {
   isChromium = window.navigator.userAgent.toLowerCase().indexOf('chrome') > -1 && !!(<any>window).chrome;
   config: Config = {
     trigger: KeyPressed.AtSymbol,
@@ -20,16 +20,21 @@ export class MentionDirective implements OnChanges {
   @Input() mention!: Item[];
   @Input() mentionConfig?: Config;
   @Input() itemTemplate?: TemplateRef<Item>;
-  @Output() itemSelected = new EventEmitter();
+  @Output() selectedMention = new EventEmitter();
+  @Output() searchTerm = new EventEmitter();
 
   filteredItems: Item[] = [];
   sel: any = document.getSelection();
   caretPosition = 0;
+  differ: any;
 
   private mentionListComponent: MentionListComponent | undefined;
   constructor(private _mentionService: MentionService,
     private _componentResolver: ComponentFactoryResolver,
-    private _viewContainerRef: ViewContainerRef) { }
+    private _viewContainerRef: ViewContainerRef,
+    private _iterableDiffers: IterableDiffers) {
+    this.differ = this._iterableDiffers.find([]).create();
+  }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['mention']) {
@@ -38,6 +43,27 @@ export class MentionDirective implements OnChanges {
 
     if (changes['mentionConfig']) {
       this.updateMentionConfig();
+    }
+  }
+
+  ngDoCheck() {
+    let changes = this.differ.diff(this.mention);
+    if (changes) {
+      this.newItems();
+    }
+  }
+
+  newItems() {
+    this.mentionsList = [...this.mention];
+    this.filteredItems = [...this.mentionsList];
+    const term = this.getTerm();
+    if (term && term[0] === this.config.trigger) {
+      this.filteredItems = this.filteredItems.filter((item: Item) => {
+        return item.name.toLowerCase().includes(term.slice(1).toLowerCase());
+      });
+      this.mentionListComponent?.setFilteredItems(this.filteredItems);
+      this.setMentionListVisibility(this.filteredItems.length !== 0);
+      this.mentionListComponent?.setCurrentIndex(0);
     }
   }
 
@@ -61,6 +87,9 @@ export class MentionDirective implements OnChanges {
     let term = '';
     let mention = '';
     this.sel = document.getSelection();
+    if (this.sel.type === 'None') {
+      return;
+    }
     if (this.sel && this.sel.isCollapsed && this.sel.anchorNode?.parentElement?.className !== 'mention') {
       const searchLen = this.sel.anchorOffset;
       for (let i = 0; i < searchLen; i++) {
@@ -100,12 +129,12 @@ export class MentionDirective implements OnChanges {
     const term = this.getTerm();
     this.setMentionListVisibility(false);
 
-    this.extendSelection(term.length);
+    this.extendSelection(term!.length);
 
     this._mentionService.pasteHtmlAtCaret(
       `<span contenteditable="false" id="${item.id}" class="mention" 
       style="color:blue">${this.config.trigger}${item.name}</span>&nbsp;`);
-    this.itemSelected.emit({ id: item.id, name: item.name });
+    this.selectedMention.emit({ id: item.id, name: item.name });
   }
 
   @HostListener('focusout', ['$event'])
@@ -168,7 +197,10 @@ export class MentionDirective implements OnChanges {
 
   filterItemsByTerm(e: KeyboardEvent) {
     const term = this.getTerm();
-    if (term[0] === this.config.trigger) {
+    if (term && term[0] === this.config.trigger) {
+      if (!/\s/.test(term)) { // Check whitespace in the term
+        this.searchTerm.emit(term.slice(1).toLowerCase());
+      }
       this.filteredItems = this.filteredItems.filter((item: Item) => {
         return item.name.toLowerCase().includes(term.slice(1).toLowerCase());
       });

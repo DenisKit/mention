@@ -1,13 +1,13 @@
 {
   "name": "@lampoint/mention",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Angular directive for mentioning users",
   "author": "Denis Kitanovski",
   "repository": {
     "type": "git",
     "url": "https://github.com/DenisKit/mention"
   },
-  "homepage": "https://github.com/DenisKit/mention",
+  "homepage": "https://lampoint/mention",
   "keywords": [
     "mention",
     "angular",

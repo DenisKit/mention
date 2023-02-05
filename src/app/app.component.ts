@@ -19,7 +19,11 @@ export class AppComponent {
 
   constructor() { }
 
-  itemSelected(item: Item) {
+  selectedMention(item: Item) {
     console.log(item);
+  }
+
+  searchTerm(term: string) {
+    console.log(term);
   }
 }

@@ -5,6 +5,7 @@
   <div class="message-input" contenteditable="true" [mention]="mentions"
       [mentionConfig]="{trigger: '@', direction: 'bottom'}"
       [itemTemplate]="itemTemplate"
-      (itemSelected)="itemSelected($event)">
+      (selectedMention)="selectedMention($event)"
+      (searchTerm)="searchTerm($event)">
   </div>
 </div>
