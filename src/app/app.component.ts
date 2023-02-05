@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { Item } from 'dist/mention/lib/interfaces/item';
 
 @Component({
   selector: 'app-root',
@@ -19,7 +18,7 @@ export class AppComponent {
 
   constructor() { }
 
-  selectedMention(item: Item) {
+  selectedMention(item: any) {
     console.log(item);
   }
 
